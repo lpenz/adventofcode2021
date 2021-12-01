@@ -6,17 +6,23 @@ use anyhow::Result;
 use std::io::{stdin, BufRead};
 
 fn process(bufin: impl BufRead) -> Result<u32> {
-    let mut last_opt = None;
+    let mut window: [u32; 3] = [0; 3];
+    let mut last_opt: Option<u32> = None;
     let mut increases = 0;
-    for line_opt in bufin.lines() {
+    for (i, line_opt) in bufin.lines().enumerate() {
         let line = line_opt?;
         let curr = line.parse::<u32>()?;
+        window[i % 3] = curr;
+        if i < 2 {
+            continue;
+        }
+        let wsum = window.iter().sum();
         if let Some(last) = last_opt {
-            if last < curr {
+            if last < wsum {
                 increases += 1;
             }
         }
-        last_opt = Some(curr);
+        last_opt = Some(wsum);
     }
     Ok(increases)
 }
