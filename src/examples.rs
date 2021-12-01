@@ -2,8 +2,14 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE', which is part of this source code package.
 
-#![warn(future_incompatible)]
-#![warn(nonstandard_style)]
-#![warn(rust_2018_idioms)]
-
-pub mod examples;
+pub const DAY01: &str = "199
+200
+208
+210
+200
+207
+240
+269
+260
+263
+";

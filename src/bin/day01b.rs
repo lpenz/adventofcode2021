@@ -5,6 +5,8 @@
 use anyhow::Result;
 use std::io::{stdin, BufRead};
 
+extern crate adventofcode2021;
+
 fn process(bufin: impl BufRead) -> Result<u32> {
     let mut window: [u32; 3] = [0; 3];
     let mut last_opt: Option<u32> = None;
@@ -25,6 +27,13 @@ fn process(bufin: impl BufRead) -> Result<u32> {
         last_opt = Some(wsum);
     }
     Ok(increases)
+}
+
+#[test]
+fn test() -> Result<()> {
+    let input = adventofcode2021::examples::DAY01;
+    assert_eq!(process(input.as_bytes())?, 5);
+    Ok(())
 }
 
 fn main() -> Result<()> {
