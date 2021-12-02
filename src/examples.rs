@@ -13,3 +13,11 @@ pub const DAY01: &str = "199
 260
 263
 ";
+
+pub const DAY02: &str = "forward 5
+down 5
+forward 8
+up 3
+down 8
+forward 2
+";
