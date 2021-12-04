@@ -7,3 +7,5 @@ edition = "2018"
 
 [dependencies]
 anyhow = "1"
+sqrid = "0"
+nom = "7"
