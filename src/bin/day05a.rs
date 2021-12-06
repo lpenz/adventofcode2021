@@ -20,15 +20,20 @@ pub mod parser {
     use anyhow::{anyhow, Result};
     use nom::{
         bytes::complete::tag, character, character::complete::char, combinator::all_consuming,
-        multi::*, IResult,
+        combinator::map_res, multi::*, IResult,
     };
     use std::io::BufRead;
 
     pub fn coords(input: &str) -> IResult<&str, Qa> {
-        let (input, x) = character::complete::u16(input)?;
-        let (input, _) = char(',')(input)?;
-        let (input, y) = character::complete::u16(input)?;
-        let qa = Qa::tryfrom_tuple((x, y)).unwrap(); // TODO: use error here
+        let (input, qa) = map_res(
+            |input| {
+                let (input, x) = character::complete::u16(input)?;
+                let (input, _) = char(',')(input)?;
+                let (input, y) = character::complete::u16(input)?;
+                Ok((input, (x, y)))
+            },
+            Qa::tryfrom_tuple,
+        )(input)?;
         Ok((input, qa))
     }
 
