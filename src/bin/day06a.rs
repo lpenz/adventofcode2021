@@ -2,10 +2,12 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE', which is part of this source code package.
 
-#![warn(future_incompatible)]
-#![warn(nonstandard_style)]
-#![warn(rust_2018_idioms)]
+use anyhow::Result;
+use std::io::stdin;
 
-pub mod examples;
+extern crate adventofcode2021;
 
-pub mod day06;
+fn main() -> Result<()> {
+    println!("{}", adventofcode2021::day06::process(80, stdin().lock())?);
+    Ok(())
+}
