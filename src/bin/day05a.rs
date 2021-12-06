@@ -6,7 +6,7 @@ use anyhow::anyhow;
 use anyhow::Result;
 use sqrid::Qr;
 use std::collections::HashMap;
-use std::io::{stdin, BufRead};
+use std::io;
 
 extern crate adventofcode2021;
 
@@ -19,17 +19,24 @@ pub mod parser {
     use crate::Qa;
     use anyhow::{anyhow, Result};
     use nom::{
-        bytes::complete::tag, character, character::complete::char, combinator::all_consuming,
-        combinator::map_res, multi::*, IResult,
+        bytes,
+        character,
+        // character::streaming::char, // , combinator::all_consuming,
+        combinator::eof,
+        combinator::map_res,
+        multi::*,
+        IResult,
     };
-    use std::io::BufRead;
+    use nom_bufreader::bufreader::BufReader;
+    use nom_bufreader::Parse;
+    use std::io;
 
-    pub fn coords(input: &str) -> IResult<&str, Qa> {
+    pub fn coords(input: &[u8]) -> IResult<&[u8], Qa> {
         let (input, qa) = map_res(
             |input| {
-                let (input, x) = character::complete::u16(input)?;
-                let (input, _) = char(',')(input)?;
-                let (input, y) = character::complete::u16(input)?;
+                let (input, x) = character::streaming::u16(input)?;
+                let (input, _) = character::streaming::char(',')(input)?;
+                let (input, y) = character::streaming::u16(input)?;
                 Ok((input, (x, y)))
             },
             |xy| Qa::tryfrom_tuple(xy),
@@ -37,28 +44,36 @@ pub mod parser {
         Ok((input, qa))
     }
 
-    pub fn line(input: &str) -> IResult<&str, (Qa, Qa)> {
+    pub fn line(input: &[u8]) -> IResult<&[u8], (Qa, Qa)> {
         let (input, orig) = coords(input)?;
-        let (input, _) = tag(" -> ")(input)?;
+        let (input, _) = bytes::streaming::tag(" -> ")(input)?;
         let (input, dest) = coords(input)?;
-        let (input, _) = char('\n')(input)?;
+        let (input, _) = character::streaming::char('\n')(input)?;
         Ok((input, (orig, dest)))
     }
 
-    pub fn parse(mut bufin: impl BufRead) -> Result<Vec<(Qa, Qa)>> {
-        let mut input = String::default();
-        bufin.read_to_string(&mut input)?;
-        let result = all_consuming(many1(line))(&input);
-        Ok(result
-            .map_err(|e| anyhow!("error reading input: {:?}", e))?
-            .1)
+    pub fn lines(input: &[u8]) -> IResult<&[u8], Vec<(Qa, Qa)>> {
+        let (input, lines) = many1(line)(&input)?;
+        let (input, _) = eof(input)?;
+        Ok((input, lines))
+    }
+
+    pub fn do_parse(mut bufin: BufReader<&[u8]>) -> Result<Vec<(Qa, Qa)>> {
+        bufin
+            .parse(lines)
+            .map_err(|e| anyhow!("error reading input: {:?}", e))
+    }
+
+    pub fn parse(mut reader: impl io::Read) -> Result<Vec<(Qa, Qa)>> {
+        let mut bufin = BufReader::new(reader);
+        do_parse(bufin)
     }
 }
 
 // Main functions
 
-fn process(bufin: impl BufRead) -> Result<usize> {
-    let lines = parser::parse(bufin)?;
+fn process(reader: impl io::Read) -> Result<usize> {
+    let lines = parser::parse(reader)?;
     let mut g: HashMap<Qa, usize> = HashMap::new();
     for (src, dst) in lines.into_iter() {
         let tsrc = src.tuple();
@@ -103,6 +118,6 @@ fn test() -> Result<()> {
 }
 
 fn main() -> Result<()> {
-    println!("{}", process(stdin().lock())?);
+    println!("{}", process(io::stdin().lock())?);
     Ok(())
 }
