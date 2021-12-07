@@ -71,3 +71,6 @@ pub const DAY05: &str = "0,9 -> 5,9
 
 pub const DAY06: &str = "3,4,3,1,2
 ";
+
+pub const DAY07: &str = "16,1,2,0,4,2,7,1,2,14
+";
