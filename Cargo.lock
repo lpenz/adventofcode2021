@@ -7,6 +7,7 @@ name = "adventofcode2021"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "itertools",
  "nom",
  "sqrid",
 ]
@@ -16,6 +17,21 @@ name = "anyhow"
 version = "1.0.51"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8b26702f315f53b6071259e15dd9d64528213b44d61de1ec926eca7715d62203"
+
+[[package]]
+name = "either"
+version = "1.6.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e78d4f1cc4ae33bbfc157ed5d5a5ef3bc29227303d595861deb238fcec4e9457"
+
+[[package]]
+name = "itertools"
+version = "0.10.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a9a9d19fa1e79b6215ff29b9d6880b706147f16e9b1dbb1e4e5947b5b02bc5e3"
+dependencies = [
+ "either",
+]
 
 [[package]]
 name = "memchr"
@@ -42,9 +58,9 @@ dependencies = [
 
 [[package]]
 name = "sqrid"
-version = "0.0.7"
+version = "0.0.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fbcf8c53426598cd724cb7d23a7cc656afd1abf6063f9269343ce8e42a38b917"
+checksum = "7586d5e4b1ce7c71ef516e02d1a5a5265da64ba58f66f45002715f00042a915e"
 
 [[package]]
 name = "version_check"

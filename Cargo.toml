@@ -8,4 +8,6 @@ edition = "2018"
 [dependencies]
 anyhow = "1"
 sqrid = "0"
+# sqrid = { git = "https://github.com/lpenz/sqrid", branch = "devel" }
 nom = "7"
+itertools = "0"
