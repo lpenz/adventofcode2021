@@ -118,3 +118,44 @@ pub const DAY11: &str = "5483143223
 4846848554
 5283751526
 ";
+
+pub const DAY12_1: &str = "start-A
+start-b
+A-c
+A-b
+b-d
+A-end
+b-end
+";
+
+pub const DAY12_2: &str = "dc-end
+HN-start
+start-kj
+dc-start
+dc-HN
+LN-dc
+HN-end
+kj-sa
+kj-HN
+kj-dc
+";
+
+pub const DAY12_3: &str = "fs-end
+he-DX
+fs-he
+start-DX
+pj-DX
+end-zg
+zg-sl
+zg-pj
+pj-he
+RW-he
+fs-DX
+pj-RW
+zg-RW
+start-pj
+he-WI
+zg-he
+pj-fs
+start-RW
+";
