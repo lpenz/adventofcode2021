@@ -138,22 +138,22 @@ pub fn do_test(input: &str, ans: i32) -> Result<()> {
 
 #[test]
 fn test1() -> Result<()> {
-    do_test(adventofcode2021::examples::DAY16_1, 16)
+    do_test("8A004A801A8002F478\n", 16)
 }
 
 #[test]
 fn test2() -> Result<()> {
-    do_test(adventofcode2021::examples::DAY16_2, 12)
+    do_test("620080001611562C8802118E34\n", 12)
 }
 
 #[test]
 fn test3() -> Result<()> {
-    do_test(adventofcode2021::examples::DAY16_3, 23)
+    do_test("C0015000016115A2E0802F182340\n", 23)
 }
 
 #[test]
 fn test4() -> Result<()> {
-    do_test(adventofcode2021::examples::DAY16_4, 31)
+    do_test("A0016C880162017C3686B18A3D4780\n", 31)
 }
 
 fn main() -> Result<()> {
