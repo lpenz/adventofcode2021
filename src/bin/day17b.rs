@@ -88,7 +88,7 @@ pub fn process(bufin: impl BufRead) -> Result<i32> {
     let ((xpmin, xpmax), (ypmin, ypmax)) = parser::parse(bufin)?;
     let mut count = 0;
     let mut found = HashSet::<(Vel, Vel)>::new();
-    for yv in (ypmin.0..i32::MAX).map(Vel) {
+    for yv in (ypmin.0..-ypmin.0).map(Vel) {
         let stepmin = step_for_pos(yv, ypmax);
         let stepmax = step_for_pos(yv, ypmin);
         if stepmin.is_none() || stepmax.is_none() {
@@ -96,13 +96,6 @@ pub fn process(bufin: impl BufRead) -> Result<i32> {
         }
         let fstepmin = stepmin.unwrap();
         let fstepmax = stepmax.unwrap();
-        // Breaking condition, semi-arbitrary:
-        if fstepmax - fstepmin < 0.0001 {
-            break;
-        }
-        if fstepmin.ceil() > fstepmax.floor() {
-            continue;
-        }
         let stepmin = fstepmin.floor() as i32;
         let stepmax = fstepmax.ceil() as i32;
         for step in (stepmin..=stepmax).map(Step) {

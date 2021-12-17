@@ -56,28 +56,12 @@ pub struct Pos(i32);
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Vel(i32);
 
-fn xpos_at_step(vel: Vel, step: Step) -> Pos {
-    let step = Step(std::cmp::min(vel.0, step.0));
-    Pos(vel.0 - ((step.0 - 2 * vel.0) * (step.0 - 1)) / 2)
-}
-
 fn ypos_at_step(vel: Vel, step: Step) -> Pos {
     Pos(vel.0 - ((step.0 - 2 * vel.0) * (step.0 - 1)) / 2)
 }
 
 fn step_top_pos(vel: Vel) -> Step {
     Step((2 * vel.0 + 1) / 2)
-}
-
-fn steps_min(xpmin: Pos) -> Step {
-    for xv0 in (1..i32::MAX).map(Vel) {
-        let step = Step(xv0.0);
-        let xp = xpos_at_step(xv0, step);
-        if xp >= xpmin {
-            return step;
-        }
-    }
-    panic!("xp_minmax not found");
 }
 
 fn step_for_pos(vel0: Vel, p: Pos) -> Option<f64> {
@@ -99,37 +83,27 @@ fn step_for_pos(vel0: Vel, p: Pos) -> Option<f64> {
 // Main functions
 
 pub fn process(bufin: impl BufRead) -> Result<i32> {
-    let ((xpmin, _xpmax), (ypmin, ypmax)) = parser::parse(bufin)?;
+    let ((_xpmin, _xpmax), (ypmin, ypmax)) = parser::parse(bufin)?;
     let mut best = Pos(i32::MIN);
-    let x_stepmin = steps_min(xpmin);
-    for yv0 in (1..i32::MAX).map(Vel) {
-        let stepmin = step_for_pos(yv0, ypmax);
-        let stepmax = step_for_pos(yv0, ypmin);
+    for yv in (ypmin.0..-ypmin.0).map(Vel) {
+        let stepmin = step_for_pos(yv, ypmax);
+        let stepmax = step_for_pos(yv, ypmin);
         if stepmin.is_none() || stepmax.is_none() {
             continue;
         }
         let fstepmin = stepmin.unwrap();
         let fstepmax = stepmax.unwrap();
-        if fstepmax - fstepmin < 0.0001 {
-            break;
-        }
-        if fstepmin.ceil() > fstepmax.floor() {
-            continue;
-        }
-        if fstepmin < x_stepmin.0 as f64 {
-            continue;
-        }
         let stepmin = fstepmin.floor() as i32;
         let stepmax = fstepmax.ceil() as i32;
         let ok = (stepmin..=stepmax).any(|step| {
-            let yp = ypos_at_step(yv0, Step(step));
+            let yp = ypos_at_step(yv, Step(step));
             ypmin <= yp && yp <= ypmax
         });
         if !ok {
             continue;
         }
-        let steptop = step_top_pos(yv0);
-        let yptop = ypos_at_step(yv0, steptop);
+        let steptop = step_top_pos(yv);
+        let yptop = ypos_at_step(yv, steptop);
         if yptop < best {
             continue;
         }
