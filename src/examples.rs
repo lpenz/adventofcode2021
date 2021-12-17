@@ -214,3 +214,5 @@ pub const DAY15: &str = "1163751742
 1293138521
 2311944581
 ";
+
+pub const DAY17: &str = "target area: x=20..30, y=-10..-5\n";
