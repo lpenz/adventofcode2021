@@ -9,3 +9,4 @@
 pub mod examples;
 
 pub mod day06;
+pub mod day18;
