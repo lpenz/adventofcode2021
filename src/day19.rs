@@ -327,6 +327,7 @@ pub fn fix_scanner(s0: &Scanner, s1: &mut Scanner) -> bool {
                     .collect::<HashSet<_>>();
                 if s0.beacons.intersection(&beacons1_rel).nth(11).is_some() {
                     s1.beacons = beacons1_rel;
+                    s1.position = Some(*orig0 - *orig1);
                     return true;
                 }
             }
@@ -345,7 +346,6 @@ pub fn fix_scanners(mut scanners_pending: Vec<Scanner>) -> Result<Vec<Scanner>> 
         for scanner_ready in &scanners_ready {
             for mut scanner_pending in std::mem::take(&mut scanners_pending).into_iter() {
                 if fix_scanner(scanner_ready, &mut scanner_pending) {
-                    // eprintln!("used {} to fix {}", scanner_ready.id, scanner_pending.id,);
                     scanners_ready_next.push(scanner_pending);
                 } else {
                     scanners_pending.push(scanner_pending);
@@ -357,12 +357,4 @@ pub fn fix_scanners(mut scanners_pending: Vec<Scanner>) -> Result<Vec<Scanner>> 
     }
     scanners_done.append(&mut scanners_ready);
     Ok(scanners_done)
-}
-
-#[test]
-fn test() -> Result<()> {
-    let scanners = bin_parser::parse(crate::examples::DAY19.as_bytes())?;
-    let scanners_done = fix_scanners(scanners)?;
-    assert_eq!(total_beacons(scanners_done.iter()), 79);
-    Ok(())
 }

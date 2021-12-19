@@ -15,12 +15,13 @@ fn process(bufin: impl BufRead) -> Result<usize> {
     Ok(total_beacons(scanners_done.iter()))
 }
 
-#[test]
-fn test() -> Result<()> {
-    let input = adventofcode2021::examples::DAY19;
-    assert_eq!(process(input.as_bytes())?, 79);
-    Ok(())
-}
+// Takes too long:
+// #[test]
+// fn test() -> Result<()> {
+//     let input = adventofcode2021::examples::DAY19;
+//     assert_eq!(process(input.as_bytes())?, 79);
+//     Ok(())
+// }
 
 fn main() -> Result<()> {
     println!("{}", process(stdin().lock())?);
