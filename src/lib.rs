@@ -11,3 +11,4 @@ pub mod examples;
 pub mod day06;
 pub mod day18;
 pub mod day19;
+pub mod day20;
