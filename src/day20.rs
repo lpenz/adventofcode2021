@@ -127,17 +127,6 @@ impl fmt::Display for Image {
     }
 }
 
-pub fn bools2index(bools: &[bool]) -> usize {
-    let mut r = 0;
-    for b in bools.iter() {
-        r <<= 1;
-        if *b {
-            r |= 1;
-        }
-    }
-    r
-}
-
 // Main functions
 
 pub fn process(enhance: usize, bufin: impl BufRead) -> Result<usize> {
@@ -149,15 +138,24 @@ pub fn process(enhance: usize, bufin: impl BufRead) -> Result<usize> {
         let xmax = oldimage.br.0;
         let ymin = oldimage.tl.1;
         let ymax = oldimage.br.1;
+        let mut indexes = HashMap::<Xy, usize>::new();
         for (x, y) in
             ((xmin - extra)..=(xmax + extra)).cartesian_product((ymin - extra)..=(ymax + extra))
         {
             let xy = Xy(x, y);
-            let bools = xy
-                .iter_around()
-                .map(|xy| oldimage.get(&xy))
-                .collect::<Vec<_>>();
-            let index = bools2index(&bools);
+            if !oldimage.get(&xy) {
+                continue;
+            }
+            let mut bit = 0x100;
+            for y2 in (y - 1..=y + 1).rev() {
+                for x2 in (x - 1..=x + 1).rev() {
+                    let e = indexes.entry(Xy(x2, y2)).or_insert(0);
+                    *e |= bit;
+                    bit >>= 1;
+                }
+            }
+        }
+        for (xy, index) in indexes.into_iter() {
             image.insert(xy, algo.get(index));
         }
         image.default = oldimage.default;

@@ -8,7 +8,7 @@ use std::io::stdin;
 extern crate adventofcode2021;
 
 #[test]
-fn test_a() -> Result<()> {
+fn test_b() -> Result<()> {
     adventofcode2021::day20::do_test(50, 3351)
 }
 
