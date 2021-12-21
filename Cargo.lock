@@ -6,11 +6,18 @@ version = 3
 name = "adventofcode2021"
 version = "0.1.0"
 dependencies = [
+ "andex",
  "anyhow",
  "itertools",
  "nom",
  "sqrid",
 ]
+
+[[package]]
+name = "andex"
+version = "0.0.10"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "183be34af304772346bd15a6304c219781ebe9e9b9f7e23f599ffb04708fb994"
 
 [[package]]
 name = "anyhow"

@@ -10,5 +10,6 @@ anyhow = "1"
 sqrid = "0"
 # sqrid = { git = "https://github.com/lpenz/sqrid", branch = "devel" }
 # sqrid = { path = "/home/lpenz/Sync/projs/github-0-ok/sqrid" }
+andex = "0"
 nom = "7"
 itertools = "0"
