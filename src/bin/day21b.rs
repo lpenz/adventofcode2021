@@ -3,6 +3,8 @@
 // file 'LICENSE', which is part of this source code package.
 
 use anyhow::Result;
+use lazy_static::lazy_static;
+use std::collections::HashMap;
 use std::io::{stdin, BufRead};
 
 extern crate adventofcode2021;
@@ -13,6 +15,7 @@ pub mod parser {
     use crate::IPlayer;
     use crate::Player;
     use crate::Players;
+    use crate::State;
     use anyhow::{anyhow, Result};
     use nom::bytes::complete as bytes;
     use nom::character::complete as character;
@@ -33,7 +36,10 @@ pub mod parser {
             input,
             Player {
                 id,
-                position: position - 1,
+                state0: State {
+                    position: position - 1,
+                    ..State::default()
+                },
                 ..Player::default()
             },
         ))
@@ -57,51 +63,81 @@ pub mod parser {
 #[derive(Debug, Default, Clone, Copy)]
 pub struct Player {
     pub id: IPlayer,
+    pub universes_win: u64,
+    pub state0: State,
+}
+
+#[derive(Debug, Clone, Copy)]
+pub struct State {
     pub position: i32,
     pub score: u64,
+}
+
+impl Default for State {
+    fn default() -> State {
+        State {
+            position: 1,
+            score: 0,
+        }
+    }
 }
 
 pub enum IPlayerMarker {}
 pub type IPlayer = andex::Andex<IPlayerMarker, 2>;
 pub type Players = andex::array!(IPlayer, Player);
+pub type States = andex::array!(IPlayer, State);
+
+type Turnspace = HashMap<i32, u64>;
+
+lazy_static! {
+    static ref TURNSPACE: HashMap<i32, u64> = {
+        let mut turnspace = Turnspace::new();
+        for d1 in 1..=3 {
+            for d2 in 1..=3 {
+                for d3 in 1..=3 {
+                    let e = turnspace.entry(d1 + d2 + d3).or_insert(0);
+                    *e += 1;
+                }
+            }
+        }
+        turnspace
+    };
+}
+
+pub fn player_turn(players: &mut Players, iplayer: IPlayer, states0: &States, freq0: u64) {
+    for (dp, dfreq) in &*TURNSPACE {
+        let mut states = *states0;
+        let pos = states[iplayer].position;
+        states[iplayer].position = (pos + dp) % 10;
+        states[iplayer].score += 1 + states[iplayer].position as u64;
+        let freq = dfreq * freq0;
+        if states[iplayer].score >= 21 {
+            players[iplayer].universes_win += freq;
+        } else {
+            player_turn(players, iplayer.pair(), &states, freq);
+        }
+    }
+}
 
 // Main functions
 
 pub fn process(bufin: impl BufRead) -> Result<u64> {
     let mut players = parser::parse(bufin)?;
-    let p1 = IPlayer::FIRST;
-    let p2 = IPlayer::LAST;
-    let mut roll = 1_i32;
-    let mut numrolls = 0;
-    while players[p1].score < 1000 && players[p2].score < 1000 {
-        for player in &mut players {
-            let dp = 3 * roll + 3;
-            let pos = player.position;
-            player.position = (pos + dp) % 10;
-            player.score += 1 + player.position as u64;
-            eprintln!(
-                "player {:?} roll0 {} dp {} pos {} score {}",
-                player,
-                roll,
-                dp,
-                player.position + 1,
-                player.score
-            );
-            roll = (roll + 3) % 100;
-            numrolls += 3;
-            if player.score >= 1000 {
-                break;
-            }
-        }
-    }
-    let minscore = players.iter().map(|p| p.score).min().unwrap();
-    Ok(minscore * numrolls)
+    eprintln!("{:?}", *TURNSPACE);
+    let states0 = players.iter().map(|p| p.state0).collect::<States>();
+    player_turn(&mut players, IPlayer::FIRST, &states0, 1);
+    eprintln!("{:?}", players[IPlayer::FIRST]);
+    eprintln!("{:?}", players[IPlayer::LAST]);
+    Ok(IPlayer::iter()
+        .map(|ip| players[ip].universes_win)
+        .max()
+        .unwrap())
 }
 
 #[test]
 fn test() -> Result<()> {
     let input = adventofcode2021::examples::DAY21;
-    assert_eq!(process(input.as_bytes())?, 739785);
+    assert_eq!(process(input.as_bytes())?, 444356092776315);
     Ok(())
 }
 

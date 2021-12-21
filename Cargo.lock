@@ -9,15 +9,16 @@ dependencies = [
  "andex",
  "anyhow",
  "itertools",
+ "lazy_static",
  "nom",
  "sqrid",
 ]
 
 [[package]]
 name = "andex"
-version = "0.0.10"
+version = "0.0.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "183be34af304772346bd15a6304c219781ebe9e9b9f7e23f599ffb04708fb994"
+checksum = "0f49cfb6eb1fba576132e9a0b13b82efb67d289f9cfdd66037f9e3d9f0167e14"
 
 [[package]]
 name = "anyhow"
@@ -39,6 +40,12 @@ checksum = "a9a9d19fa1e79b6215ff29b9d6880b706147f16e9b1dbb1e4e5947b5b02bc5e3"
 dependencies = [
  "either",
 ]
+
+[[package]]
+name = "lazy_static"
+version = "1.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e2abad23fbc42b3700f2f279844dc832adb2b2eb069b2df918f455c4e18cc646"
 
 [[package]]
 name = "memchr"
