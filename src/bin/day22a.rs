@@ -4,7 +4,6 @@
 
 use anyhow::Result;
 use itertools::Itertools;
-use std::collections::HashSet;
 use std::io::{stdin, BufRead};
 
 extern crate adventofcode2021;
@@ -12,6 +11,7 @@ extern crate adventofcode2021;
 // Parser
 
 pub mod parser {
+    use crate::Cube;
     use crate::Step;
     use crate::Xyz;
     use anyhow::{anyhow, Result};
@@ -44,12 +44,13 @@ pub mod parser {
         let (input, _) = bytes::tag(",z=")(input)?;
         let (input, (zini, zend)) = range(input)?;
         let (input, _) = character::newline(input)?;
+        let ini = Xyz::new(xini, yini, zini);
+        let end = Xyz::new(xend + 1, yend + 1, zend + 1);
         Ok((
             input,
             Step {
                 on: onoff,
-                ini: Xyz::new(xini, yini, zini),
-                end: Xyz::new(xend, yend, zend),
+                cube: Cube::new(ini, end),
             },
         ))
     }
@@ -81,49 +82,101 @@ impl Xyz {
     }
     pub fn valid(&self) -> bool {
         self.x >= -50
-            && self.x <= 50
+            && self.x <= 51
             && self.y >= -50
-            && self.y <= 50
+            && self.y <= 51
             && self.z >= -50
-            && self.z <= 50
+            && self.z <= 51
     }
 }
 
-pub fn iter_cubes(ini: Xyz, end: Xyz) -> impl Iterator<Item = Xyz> {
-    (ini.x..=end.x)
-        .cartesian_product(ini.y..=end.y)
-        .cartesian_product(ini.z..=end.z)
-        .map(|((x, y), z)| Xyz::new(x, y, z))
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
+pub struct Cube {
+    ini: Xyz,
+    end: Xyz,
+}
+
+impl Cube {
+    pub fn new(ini: Xyz, end: Xyz) -> Cube {
+        Cube { ini, end }
+    }
+    pub fn valid(&self) -> bool {
+        self.ini.valid() && self.end.valid()
+    }
+    pub fn is_empty(&self) -> bool {
+        self.ini.x == self.end.x || self.ini.y == self.end.y || self.ini.z == self.end.z
+    }
+    pub fn len(&self) -> usize {
+        let dx = (self.ini.x - self.end.x).abs() as usize;
+        let dy = (self.ini.y - self.end.y).abs() as usize;
+        let dz = (self.ini.z - self.end.z).abs() as usize;
+        dx * dy * dz
+    }
+    pub fn contains(&self, xyz: Xyz) -> bool {
+        self.ini.x <= xyz.x
+            && xyz.x < self.end.x
+            && self.ini.y <= xyz.y
+            && xyz.y < self.end.y
+            && self.ini.z <= xyz.z
+            && xyz.z < self.end.z
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct Step {
     pub on: bool,
-    pub ini: Xyz,
-    pub end: Xyz,
+    pub cube: Cube,
+}
+
+impl Step {
+    pub fn compress<F>(steps: &[Step], func: F) -> Vec<i32>
+    where
+        F: Fn(Xyz) -> i32,
+    {
+        steps
+            .iter()
+            .flat_map(|s| {
+                let ini = func(s.cube.ini);
+                let end = func(s.cube.end);
+                vec![ini - 1, ini, end - 1, end].into_iter()
+            })
+            .sorted()
+            .unique()
+            .collect::<Vec<_>>()
+    }
 }
 
 // Main functions
 
 pub fn process(bufin: impl BufRead) -> Result<usize> {
     let steps = parser::parse(bufin)?;
-    let mut on = HashSet::<Xyz>::new();
-    for step in steps {
-        if !step.ini.valid() || !step.end.valid() {
-            continue;
-        }
-        eprintln!("step {:?}", step);
-        if step.on {
-            for xyz in iter_cubes(step.ini, step.end) {
-                on.insert(xyz);
-            }
-        } else {
-            for xyz in iter_cubes(step.ini, step.end) {
-                on.remove(&xyz);
+    let steps = steps
+        .into_iter()
+        .filter(|s| s.cube.valid())
+        .collect::<Vec<_>>();
+    let xs = Step::compress(&steps, |c| c.x);
+    let ys = Step::compress(&steps, |c| c.y);
+    let zs = Step::compress(&steps, |c| c.z);
+    let mut total_on = 0;
+    for xw in xs.windows(2) {
+        for yw in ys.windows(2) {
+            for zw in zs.windows(2) {
+                let ini = Xyz::new(xw[0], yw[0], zw[0]);
+                let end = Xyz::new(xw[1], yw[1], zw[1]);
+                let cube = Cube::new(ini, end);
+                let mut on = false;
+                for step in &steps {
+                    if step.cube.contains(ini) {
+                        on = step.on;
+                    }
+                }
+                if on {
+                    total_on += cube.len();
+                }
             }
         }
     }
-    Ok(on.len())
+    Ok(total_on)
 }
 
 pub const DAY22: &str = "on x=-20..26,y=-36..17,z=-47..7
