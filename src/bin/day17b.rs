@@ -112,7 +112,6 @@ pub fn process(bufin: impl BufRead) -> Result<i32> {
                 if xpmin <= xp && xp <= xpmax {
                     count += 1;
                     found.insert(t);
-                    eprintln!("{}, {}", xv.0, yv.0);
                 }
             }
         }

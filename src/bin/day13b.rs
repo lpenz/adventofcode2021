@@ -95,8 +95,6 @@ fn process(bufin: impl BufRead) -> Result<usize> {
             }
         }
     }
-    let max = paper.iter().max_by_key(|&qa| Qa::manhattan(qa, Qa::FIRST));
-    eprintln!("max {:?}", max);
     let mut g = GridboolFolded::default();
     for qa0 in &paper {
         let qa = QaFolded::tryfrom_tuple(qa0.tuple())?;

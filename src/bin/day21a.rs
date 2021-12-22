@@ -79,14 +79,6 @@ pub fn process(bufin: impl BufRead) -> Result<u64> {
             let pos = player.position;
             player.position = (pos + dp) % 10;
             player.score += 1 + player.position as u64;
-            eprintln!(
-                "player {:?} roll0 {} dp {} pos {} score {}",
-                player,
-                roll,
-                dp,
-                player.position + 1,
-                player.score
-            );
             roll = (roll + 3) % 100;
             numrolls += 3;
             if player.score >= 1000 {
