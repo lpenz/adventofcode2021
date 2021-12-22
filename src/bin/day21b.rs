@@ -15,7 +15,6 @@ pub mod parser {
     use crate::IPlayer;
     use crate::Player;
     use crate::Players;
-    use crate::State;
     use anyhow::{anyhow, Result};
     use nom::bytes::complete as bytes;
     use nom::character::complete as character;
@@ -36,11 +35,7 @@ pub mod parser {
             input,
             Player {
                 id,
-                state0: State {
-                    position: position - 1,
-                    ..State::default()
-                },
-                ..Player::default()
+                position: position - 1,
             },
         ))
     }
@@ -63,29 +58,12 @@ pub mod parser {
 #[derive(Debug, Default, Clone, Copy)]
 pub struct Player {
     pub id: IPlayer,
-    pub universes_win: u64,
-    pub state0: State,
-}
-
-#[derive(Debug, Clone, Copy)]
-pub struct State {
     pub position: i32,
-    pub score: u64,
-}
-
-impl Default for State {
-    fn default() -> State {
-        State {
-            position: 1,
-            score: 0,
-        }
-    }
 }
 
 pub enum IPlayerMarker {}
 pub type IPlayer = andex::Andex<IPlayerMarker, 2>;
 pub type Players = andex::array!(IPlayer, Player);
-pub type States = andex::array!(IPlayer, State);
 
 type Turnspace = HashMap<i32, u64>;
 
@@ -104,34 +82,57 @@ lazy_static! {
     };
 }
 
-pub fn player_turn(players: &mut Players, iplayer: IPlayer, states0: &States, freq0: u64) {
+pub type Rollscore = HashMap<(i32, u64), u64>;
+
+pub fn rollscores_calc(
+    rollscores: &mut Rollscore,
+    position0: i32,
+    rolls0: i32,
+    score0: u64,
+    freq0: u64,
+) {
+    if score0 >= 21 {
+        return;
+    }
     for (dp, dfreq) in &*TURNSPACE {
-        let mut states = *states0;
-        let pos = states[iplayer].position;
-        states[iplayer].position = (pos + dp) % 10;
-        states[iplayer].score += 1 + states[iplayer].position as u64;
-        let freq = dfreq * freq0;
-        if states[iplayer].score >= 21 {
-            players[iplayer].universes_win += freq;
-        } else {
-            player_turn(players, iplayer.pair(), &states, freq);
-        }
+        let pos = (position0 + dp) % 10;
+        let score = score0 + 1 + pos as u64;
+        let freq = freq0 * dfreq;
+        let rolls = rolls0 + 1;
+        let e = rollscores.entry((rolls, score)).or_insert(0);
+        *e += freq;
+        rollscores_calc(rollscores, pos, rolls, score, freq);
     }
 }
 
 // Main functions
 
 pub fn process(bufin: impl BufRead) -> Result<u64> {
-    let mut players = parser::parse(bufin)?;
-    eprintln!("{:?}", *TURNSPACE);
-    let states0 = players.iter().map(|p| p.state0).collect::<States>();
-    player_turn(&mut players, IPlayer::FIRST, &states0, 1);
-    eprintln!("{:?}", players[IPlayer::FIRST]);
-    eprintln!("{:?}", players[IPlayer::LAST]);
-    Ok(IPlayer::iter()
-        .map(|ip| players[ip].universes_win)
-        .max()
-        .unwrap())
+    let players = parser::parse(bufin)?;
+    let mut rollscores = [Rollscore::default(), Rollscore::default()];
+    for iplayer in IPlayer::iter() {
+        rollscores[usize::from(iplayer)].insert((0, 0), 1);
+        rollscores_calc(
+            &mut rollscores[usize::from(iplayer)],
+            players[iplayer].position,
+            0,
+            0,
+            1,
+        );
+    }
+    let mut wins0 = 0_u64;
+    let mut wins1 = 0_u64;
+    for ((rolls0, score0), freq0) in &rollscores[usize::from(IPlayer::FIRST)] {
+        for ((rolls1, score1), freq1) in &rollscores[usize::from(IPlayer::LAST)] {
+            if *score0 >= 21_u64 && *rolls1 == *rolls0 - 1 && *score1 < 21_u64 {
+                wins0 += freq0 * freq1;
+            }
+            if *score1 >= 21_u64 && *rolls1 == *rolls0 && *score0 < 21_u64 {
+                wins1 += freq0 * freq1;
+            }
+        }
+    }
+    Ok(std::cmp::max(wins0, wins1))
 }
 
 #[test]
