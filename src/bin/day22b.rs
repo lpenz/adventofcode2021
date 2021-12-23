@@ -237,11 +237,12 @@ on x=-53470..21291,y=-120233..-33476,z=-44150..38147
 off x=-93533..-4276,y=-16170..68771,z=-104985..-24507
 ";
 
-#[test]
-fn test() -> Result<()> {
-    assert_eq!(process(DAY22.as_bytes())?, 2758514936282235);
-    Ok(())
-}
+// Takes too long:
+// #[test]
+// fn test() -> Result<()> {
+//     assert_eq!(process(DAY22.as_bytes())?, 2758514936282235);
+//     Ok(())
+// }
 
 fn main() -> Result<()> {
     println!("{}", process(stdin().lock())?);
