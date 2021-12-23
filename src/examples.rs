@@ -358,3 +358,10 @@ pub const DAY19: &str = "--- scanner 0 ---
 pub const DAY21: &str = "Player 1 starting position: 4
 Player 2 starting position: 8
 ";
+
+pub const DAY23: &str = "#############
+#...........#
+###B#C#B#D###
+  #A#D#C#A#
+  #########
+";
