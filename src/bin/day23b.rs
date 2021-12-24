@@ -382,12 +382,13 @@ fn process(bufin: impl BufRead) -> Result<usize> {
     Ok(solutions[0].2.cost)
 }
 
-#[test]
-fn test() -> Result<()> {
-    let input = adventofcode2021::examples::DAY23;
-    assert_eq!(process(input.as_bytes())?, 44169);
-    Ok(())
-}
+// Takes too long:
+// #[test]
+// fn test() -> Result<()> {
+//     let input = adventofcode2021::examples::DAY23;
+//     assert_eq!(process(input.as_bytes())?, 44169);
+//     Ok(())
+// }
 
 fn main() -> Result<()> {
     println!("{}", process(stdin().lock())?);
