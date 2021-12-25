@@ -37,13 +37,12 @@ fn process(bufin: impl BufRead) -> Result<i32> {
         .ok_or_else(|| anyhow!("could not calculate distances"))?)
 }
 
-// Takes too long:
-// #[test]
-// fn test() -> Result<()> {
-//     let input = adventofcode2021::examples::DAY19;
-//     assert_eq!(process(input.as_bytes())?, 3621);
-//     Ok(())
-// }
+#[test]
+fn test() -> Result<()> {
+    let input = adventofcode2021::examples::DAY19;
+    assert_eq!(process(input.as_bytes())?, 3621);
+    Ok(())
+}
 
 fn main() -> Result<()> {
     println!("{}", process(stdin().lock())?);
