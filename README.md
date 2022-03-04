@@ -28,6 +28,10 @@ Some interesting things that happened on specific days:
   a viable brute-force performance.
 
 
+<table><tr>
+<td><a href="https://github.com/lpenz/adventofcode2020">:arrow_left: 2020</td>
+</tr></table>
+
 [sqrid]: https://github.com/lpenz/sqrid
 [nom]: https://github.com/Geal/nom
 [rayon]: https://github.com/rayon-rs/rayon
