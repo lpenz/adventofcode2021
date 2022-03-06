@@ -5,13 +5,13 @@ authors = ["Leandro Lisboa Penz <lpenz@lpenz.org>"]
 edition = "2021"
 
 [dependencies]
-anyhow = "1"
-sqrid = "0"
+anyhow = "1.0.53"
+sqrid = "0.0.11"
 # sqrid = { git = "https://github.com/lpenz/sqrid", branch = "devel" }
 # sqrid = { path = "/home/lpenz/Sync/projs/github-0-ok/sqrid" }
-andex = "0"
-nom = "7"
-itertools = "0"
-lazy_static = "1"
-rayon = "1"
-dashmap = "5"
+andex = "0.0.11"
+nom = "7.1.0"
+itertools = "0.10.3"
+lazy_static = "1.4.0"
+rayon = "1.5.1"
+dashmap = "5.0.0"
