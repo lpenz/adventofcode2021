@@ -17,7 +17,7 @@ fn countpos(lines: &[String], i: usize, value: u8) -> usize {
 }
 
 fn convert(lastline_opt: Option<String>, num_columns: usize) -> Result<u64> {
-    let lastline = lastline_opt.ok_or(anyhow!("no last line found"))?;
+    let lastline = lastline_opt.ok_or_else(|| anyhow!("no last line found"))?;
     let mut result = 0;
     for i in 0..num_columns {
         if lastline.as_bytes()[i] == b'1' {

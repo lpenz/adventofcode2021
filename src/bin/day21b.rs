@@ -63,7 +63,7 @@ pub struct Player {
 
 pub enum IPlayerMarker {}
 pub type IPlayer = andex::Andex<IPlayerMarker, 2>;
-pub type Players = andex::array!(IPlayer, Player);
+pub type Players = andex::andex_array!(IPlayer, Player);
 
 type Turnspace = HashMap<i32, u64>;
 
